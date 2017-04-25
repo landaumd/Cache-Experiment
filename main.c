@@ -6,6 +6,7 @@
 #include "memory.h"
 
 #define BILLION 1E9
+#define MILLION 1E6
 
 /*
 comment about the main
@@ -18,7 +19,7 @@ int main(int argc, char** argv)
 	struct timespec start;
 	struct timespec end;
 
-	long n = 10000; //num of times it runs
+	long n = 100000; //num of times it runs
 
 	int array_size = 1024*1024*16; //16MB array
 	int *a;
@@ -27,26 +28,38 @@ int main(int argc, char** argv)
 	
 	//step 4 - find time for cache retrieval
 	int i, j, k;
-	int *list;
-	list = malloc(1000000*sizeof(int));
+	long *list;
+	list = malloc(n*sizeof(long));
 
 
 	for (k = 0; k < n; k++){
 
+		//draws line into memory - mostly cache access after this
 		a[0];
 		j = 0;
+
+		//begin clock
 		clock_gettime(CLOCK_MONOTONIC, &start);
 
-		while (j < 1000000){
+		//run for a while
+		while (j < MILLION){
 			a[j];
 			j++;
 		}
 
-		clock_gettime(CLOCK_MONOTONIC, &start);
-		uint64_t time_diff = (BILLION * ( end.tv_sec - start.tv_sec ) + ( end.tv_nsec - start.tv_nsec ));
+		//end clock
+		clock_gettime(CLOCK_MONOTONIC, &end);
+
+		//get difference
+		long time_diff = (BILLION * ( end.tv_sec - start.tv_sec ) + ( end.tv_nsec - start.tv_nsec ));
 		
-		//add this part to the list		
-		printf("%d\n", time_diff/1000000);
+		//add the average time it took to access the cache		
+		list[k] = (time_diff/MILLION);
+
+	}
+
+	for (i = 0; i < 100; i++){
+		printf("%ld\n", list[i]);
 
 	}
 
